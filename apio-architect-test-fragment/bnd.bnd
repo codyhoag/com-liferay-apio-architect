@@ -1,6 +1,6 @@
 Bundle-Name: Liferay Apio Architect Test Fragment
 Bundle-SymbolicName: com.liferay.apio.architect.test.fragment
-Bundle-Version: 1.0.0
+Bundle-Version: 1.0.1
 Export-Package:\
 	com.liferay.apio.architect.internal.action,\
 	com.liferay.apio.architect.internal.action.resource,\
