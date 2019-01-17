@@ -14,9 +14,13 @@
 
 package com.liferay.apio.architect.internal.annotation.util;
 
+import io.vavr.collection.Stream;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+
+import java.util.List;
 
 /**
  * Provides utility functions for dealing with annotations.
@@ -77,6 +81,24 @@ public final class AnnotationUtil {
 		}
 
 		return null;
+	}
+
+	public static List<Annotation> mergeMissingAnnotations(
+		List<Annotation> list, Annotation[] array) {
+
+		return Stream.of(
+			array
+		).filter(
+			annotation -> !Stream.ofAll(
+				list
+			).map(
+				Annotation::getClass
+			).exists(
+				annotation.getClass()::equals
+			)
+		).prependAll(
+			list
+		).toJavaList();
 	}
 
 	private AnnotationUtil() {

@@ -17,6 +17,12 @@ package com.liferay.apio.architect.internal.annotation.util;
 import static com.liferay.apio.architect.internal.annotation.util.AnnotationUtil.findAnnotationInAnyParameter;
 import static com.liferay.apio.architect.internal.annotation.util.AnnotationUtil.findAnnotationInMethodOrInItsAnnotations;
 
+import static java.util.Arrays.asList;
+
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+
+import static org.hamcrest.Matchers.arrayContaining;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
@@ -26,8 +32,15 @@ import static org.junit.Assert.assertThat;
 
 import com.liferay.apio.architect.annotation.Actions.Action;
 import com.liferay.apio.architect.annotation.Id;
+import com.liferay.apio.architect.annotation.Vocabulary.Type;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+
+import java.util.List;
+
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -92,6 +105,50 @@ public class AnnotationUtilTest {
 		assertThat(id, is(instanceOf(Id.class)));
 		assertThat(nullId1, is(nullValue()));
 		assertThat(nullId2, is(nullValue()));
+	}
+
+	@Test
+	public void testMergeMissingAnnotationsOnlyAddsMissingAnnotations() {
+		@Type("Good")
+		@Produces(APPLICATION_JSON)
+		class OldAnnotationsClass {
+		}
+
+		@Type("Bad")
+		@Path("/apio")
+		class NewAnnotationsClass {
+		}
+
+		List<Annotation> list = asList(
+			OldAnnotationsClass.class.getAnnotations());
+
+		Annotation[] array = NewAnnotationsClass.class.getAnnotations();
+
+		List<Annotation> annotations = AnnotationUtil.mergeMissingAnnotations(
+			list, array);
+
+		assertThat(annotations, hasSize(3));
+
+		Annotation typeAnnotation = annotations.get(0);
+
+		assertThat(typeAnnotation, is(instanceOf(Type.class)));
+		Type type = (Type)typeAnnotation;
+
+		assertThat(type.value(), is("Good"));
+
+		Annotation producesAnnotation = annotations.get(1);
+
+		assertThat(producesAnnotation, is(instanceOf(Produces.class)));
+		Produces produces = (Produces)producesAnnotation;
+
+		assertThat(produces.value(), is(arrayContaining(APPLICATION_JSON)));
+
+		Annotation pathAnnotation = annotations.get(2);
+
+		assertThat(pathAnnotation, is(instanceOf(Path.class)));
+		Path path = (Path)pathAnnotation;
+
+		assertThat(path.value(), is("/apio"));
 	}
 
 	private static Method _annotatedWithActionMethod;
