@@ -67,44 +67,30 @@ configure(subprojects.findAll {!it.childProjects}) {
 	}
 }
 
-task codeCoverageIntegrationTestReport(type: JacocoReport)
-task codeCoverageUnitTestReport(type: JacocoReport)
+task codeCoverageTestReport(type: JacocoReport)
 
-codeCoverageIntegrationTestReport {
-	executionData fileTree(project.rootDir.absolutePath).include("**/build/jacoco/testIntegration.exec")
+codeCoverageTestReport {
+	def testType = project.findProperty("test.type") ?: "unit"
 
-	subprojects.findAll { !it.childProjects }.each { sourceSets it.sourceSets.main }
+	def executionDataRegex
 
-	reports {
-		csv {
-			enabled = false
-		}
-
-		html {
-			enabled = false
-		}
-
-		xml {
-			enabled = true
-			destination file("${buildDir}/reports/jacoco/report.xml")
-		}
+	if (testType == "unit") {
+		executionDataRegex = "**/build/jacoco/test.exec"
 	}
-}
 
-codeCoverageUnitTestReport {
-	executionData fileTree(project.rootDir.absolutePath).include("**/build/jacoco/test.exec")
+	if (testType == "integration") {
+		executionDataRegex = "**/build/jacoco/testIntegration.exec"
+	}
+
+	if (testType == "client") {
+		executionDataRegex = "**/build/jacoco/testClient.exec"
+	}
+
+	executionData fileTree(project.rootDir.absolutePath).include(executionDataRegex)
 
 	subprojects.findAll { !it.childProjects }.each { sourceSets it.sourceSets.main }
 
 	reports {
-		csv {
-			enabled = false
-		}
-
-		html {
-			enabled = false
-		}
-
 		xml {
 			enabled = true
 			destination file("${buildDir}/reports/jacoco/report.xml")

@@ -7,7 +7,9 @@ before_script:
 
 script:
     - ./gradlew check
-    - ./gradlew codeCoverageUnitTestReport
-    - bash <(curl -s https://codecov.io/bash) -F unittests
-    - ./gradlew codeCoverageIntegrationTestReport
+    - ./gradlew codeCoverageTestReport -Ptest.type=unit
+    - bash <(curl -s https://codecov.io/bash) -F unit
+    - ./gradlew codeCoverageTestReport -Ptest.type=integration
     - bash <(curl -s https://codecov.io/bash) -F integration
+    - ./gradlew codeCoverageTestReport -Ptest.type=client
+    - bash <(curl -s https://codecov.io/bash) -F client
