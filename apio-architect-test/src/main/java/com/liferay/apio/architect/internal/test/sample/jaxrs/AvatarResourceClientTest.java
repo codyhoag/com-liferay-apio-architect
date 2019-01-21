@@ -39,7 +39,7 @@ import org.junit.Test;
  *
  * @author Alejandro Hernández
  */
-public class AvatarResourceTest extends BaseTest {
+public class AvatarResourceClientTest extends BaseTest {
 
 	@Test
 	public void testAvatarResourceReturns404OnNonexistentAvatar() {

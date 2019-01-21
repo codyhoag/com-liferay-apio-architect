@@ -72,7 +72,7 @@ import org.junit.Test;
  *
  * @author Alejandro Hernández
  */
-public class RootResourceTest extends BaseTest {
+public class RootResourceClientTest extends BaseTest {
 
 	@BeforeClass
 	public static void setUpClass() {

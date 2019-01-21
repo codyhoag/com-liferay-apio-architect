@@ -14,15 +14,12 @@
 
 package com.liferay.apio.architect.internal.test.jaxrs.filter;
 
-import static javax.ws.rs.core.HttpHeaders.ACCEPT_LANGUAGE;
-
 import static org.hamcrest.Matchers.is;
 
 import static org.junit.Assert.assertThat;
 
+import com.liferay.apio.architect.internal.jaxrs.resource.CUSTOM;
 import com.liferay.apio.architect.internal.test.base.BaseTest;
-
-import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -37,12 +34,11 @@ import org.junit.Test;
 
 /**
  * Test suite for {@link
- * com.liferay.apio.architect.internal.jaxrs.filter.AcceptLanguageEmptyFilter}.
+ * com.liferay.apio.architect.internal.jaxrs.filter.HTTPMethodOverrideFilter}.
  *
- * @author Víctor Galán
- * @author Rubén Pulido
+ * @author Alejandro Hernández
  */
-public class AcceptLanguageEmptyFilterTest extends BaseTest {
+public class HTTPMethodOverrideFilterClientTest extends BaseTest {
 
 	@BeforeClass
 	public static void setUpClass() {
@@ -52,64 +48,47 @@ public class AcceptLanguageEmptyFilterTest extends BaseTest {
 	}
 
 	@Test
-	public void testRequestWithEmptyAcceptLanguageReturnsDefaultLocale() {
+	public void testDefaultHTTPMethodIsNotChanged() {
 		WebTarget webTarget = createDefaultTarget();
 
 		Response response = webTarget.path(
 			"hello"
 		).request(
-		).header(
-			ACCEPT_LANGUAGE, ""
 		).get();
 
 		assertThat(response.getStatus(), is(200));
-
-		Locale expectedLocale = Locale.getDefault();
-
-		assertThat(
-			response.readEntity(String.class),
-			is(expectedLocale.toLanguageTag()));
+		assertThat(response.readEntity(String.class), is("Hello World!"));
 	}
 
 	@Test
-	public void testRequestWithGivenAcceptLanguageReturnsCorrespondingLocale() {
+	public void testNotDefaultHTTPMethodIsChanged() {
 		WebTarget webTarget = createDefaultTarget();
 
 		Response response = webTarget.path(
 			"hello"
 		).request(
-		).header(
-			ACCEPT_LANGUAGE, "fr-FR"
-		).get();
-
-		assertThat(response.getStatus(), is(200));
-		assertThat(response.readEntity(String.class), is("fr-FR"));
-	}
-
-	@Test
-	public void testRequestWithInvalidAcceptLanguageReturnsCorrespondingLocale() {
-		WebTarget webTarget = createDefaultTarget();
-
-		Response response = webTarget.path(
-			"hello"
-		).request(
-		).header(
-			ACCEPT_LANGUAGE, "NON_VALID_ACCEPT_LANGUAGE"
-		).get();
+		).method(
+			"GREET"
+		);
 
 		assertThat(response.getStatus(), is(200));
 
-		assertThat(response.readEntity(String.class), is("und"));
+		String expected = "Hello World! Method GREET.";
+
+		assertThat(response.readEntity(String.class), is(expected));
 	}
 
 	@Path("hello")
 	public static class HelloWorldResource {
 
 		@GET
-		public String hello(@Context HttpServletRequest request) {
-			Locale locale = request.getLocale();
+		public String hello() {
+			return "Hello World!";
+		}
 
-			return locale.toLanguageTag();
+		@CUSTOM
+		public String hello(@Context HttpServletRequest request) {
+			return "Hello World! Method " + request.getMethod() + ".";
 		}
 
 	}

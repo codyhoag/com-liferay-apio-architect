@@ -43,7 +43,7 @@ import org.junit.Test;
  *
  * @author Alejandro Hernández
  */
-public class FailureFilterTest extends BaseTest {
+public class FailureFilterClientTest extends BaseTest {
 
 	@BeforeClass
 	public static void setUpClass() {

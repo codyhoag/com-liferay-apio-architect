@@ -74,7 +74,7 @@ import org.junit.Test;
  *
  * @author Alejandro Hernández
  */
-public class FormResourceTest extends BaseTest {
+public class FormResourceClientTest extends BaseTest {
 
 	@BeforeClass
 	public static void setUpClass() {

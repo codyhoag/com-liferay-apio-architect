@@ -53,7 +53,7 @@ import org.junit.Test;
  * @author Alejandro Hernández
  * @review
  */
-public class ExceptionMapperTest extends BaseTest {
+public class ExceptionMapperClientTest extends BaseTest {
 
 	@BeforeClass
 	public static void setUpClass() {
