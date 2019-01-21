@@ -59,6 +59,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 
 import org.json.JSONObject;
 
@@ -180,7 +181,14 @@ public class FormResourceTest extends BaseTest {
 			).put(
 				"@type", "Class"
 			).put(
-				"@id", getJAXRSServiceEndpoint() + "uri"
+				"@id",
+				UriBuilder.fromPath(
+					getJAXRSServiceEndpoint()
+				).path(
+					getApioApplicationPath()
+				).path(
+					"uri"
+				).build()
 			).put(
 				"title", "Title"
 			).put(

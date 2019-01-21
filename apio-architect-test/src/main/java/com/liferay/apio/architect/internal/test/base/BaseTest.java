@@ -314,7 +314,11 @@ public class BaseTest {
 	protected WebTarget createDefaultTarget() {
 		Client client = createClient();
 
-		return client.target(getJAXRSServiceEndpoint());
+		return client.target(
+			getJAXRSServiceEndpoint()
+		).path(
+			getApioApplicationPath()
+		);
 	}
 
 	/**
