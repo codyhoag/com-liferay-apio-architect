@@ -23,6 +23,7 @@ import static io.vavr.Predicates.is;
 import static java.util.function.Function.identity;
 
 import static org.osgi.service.jaxrs.runtime.JaxrsServiceRuntimeConstants.JAX_RS_SERVICE_ENDPOINT;
+import static org.osgi.service.jaxrs.whiteboard.JaxrsWhiteboardConstants.JAX_RS_APPLICATION_BASE;
 import static org.osgi.service.jaxrs.whiteboard.JaxrsWhiteboardConstants.JAX_RS_APPLICATION_SELECT;
 import static org.osgi.service.jaxrs.whiteboard.JaxrsWhiteboardConstants.JAX_RS_RESOURCE;
 
@@ -43,6 +44,7 @@ import java.util.function.Function;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 
 import org.json.JSONObject;
@@ -313,6 +315,26 @@ public class BaseTest {
 		Client client = createClient();
 
 		return client.target(getJAXRSServiceEndpoint());
+	}
+
+	/**
+	 * Returns the base path for the Apio Architect JAX-RS {@link Application}.
+	 *
+	 * @review
+	 */
+	protected String getApioApplicationPath() {
+		return Try.of(
+			() -> _bundleContext.getServiceReferences(
+				Application.class.getName(),
+				"(osgi.jaxrs.name=apio-application)")
+		).map(
+			serviceReferences -> serviceReferences[0]
+		).map(
+			serviceReference -> (String)serviceReference.getProperty(
+				JAX_RS_APPLICATION_BASE)
+		).getOrElseThrow(
+			t -> new AssertionError("Unable to get ApioApplication path", t)
+		);
 	}
 
 	/**
