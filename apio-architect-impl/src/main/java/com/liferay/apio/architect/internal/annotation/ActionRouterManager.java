@@ -44,6 +44,7 @@ import com.liferay.apio.architect.annotation.Vocabulary;
 import com.liferay.apio.architect.credentials.Credentials;
 import com.liferay.apio.architect.form.Form;
 import com.liferay.apio.architect.internal.action.ActionSemantics;
+import com.liferay.apio.architect.internal.annotation.model.AnnotatedClass;
 import com.liferay.apio.architect.internal.annotation.util.ActionRouterUtil;
 import com.liferay.apio.architect.internal.url.ApplicationURL;
 import com.liferay.apio.architect.internal.url.ServerURL;
@@ -56,7 +57,6 @@ import io.vavr.CheckedFunction1;
 import io.vavr.control.Option;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 
 import java.util.Arrays;
@@ -109,13 +109,7 @@ public class ActionRouterManager {
 		for (ActionRouter<?> actionRouter : _actionRouters) {
 			Class<? extends ActionRouter> clazz = actionRouter.getClass();
 
-			Class<?>[] interfaceClasses = clazz.getInterfaces();
-
-			if (!interfaceClasses[0].equals(ActionRouter.class)) {
-				Type firstInterfaceType = clazz.getGenericInterfaces()[0];
-
-				clazz = (Class<? extends ActionRouter>)firstInterfaceType;
-			}
+			AnnotatedClass annotatedClass = AnnotatedClass.of(clazz);
 
 			Option<String> optionName = Option.of(
 				getTypeParameter(clazz, _actionRouterTypeParameter)
@@ -137,22 +131,22 @@ public class ActionRouterManager {
 
 			String name = optionName.get();
 
-			Stream.of(
-				clazz.getMethods()
-			).map(
-				method -> _getActionSemanticsOption(actionRouter, method, name)
-			).filter(
-				Option::isDefined
-			).map(
-				Option::get
-			).forEach(
-				INSTANCE::addActionSemantics
-			);
+			for (AnnotatedClass.AnnotatedMethod annotatedMethod :
+					annotatedClass.getAnnotatedMethods()) {
+
+				Option<ActionSemantics> option = _getActionSemanticsOption(
+					actionRouter, annotatedMethod, name);
+
+				option.peek(INSTANCE::addActionSemantics);
+			}
 		}
 	}
 
 	private Option<ActionSemantics> _getActionSemanticsOption(
-		ActionRouter actionRouter, Method method, String name) {
+		ActionRouter actionRouter,
+		AnnotatedClass.AnnotatedMethod annotatedMethod, String name) {
+
+		Method method = annotatedMethod.method;
 
 		Action action = findAnnotationInMethodOrInItsAnnotations(
 			method, Action.class);
