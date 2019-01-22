@@ -41,7 +41,10 @@ import org.osgi.service.component.annotations.Component;
  *
  * @author Alejandro Hernández
  */
-@Component(service = Provider.class)
+@Component(
+	property = "provided.class=com.liferay.apio.architect.language.AcceptLanguage",
+	service = Provider.class
+)
 public class AcceptLanguageProvider implements Provider<AcceptLanguage> {
 
 	@Override
