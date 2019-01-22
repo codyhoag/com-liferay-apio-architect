@@ -218,6 +218,37 @@ public class BaseTest {
 	}
 
 	/**
+	 * Returns the service for a certain class containing the provided {@code
+	 * property}-{@code value} pair. Returns {@code null} if service could not
+	 * be found.
+	 *
+	 * @param  serviceClass the service's class
+	 * @param  property the property key
+	 * @param  value the property value
+	 * @return the service, if present; {@code null} otherwise
+	 * @review
+	 */
+	@SuppressWarnings("unchecked")
+	protected static <T, S extends T> S getService(
+		Class<T> serviceClass, String property, Object value) {
+
+		return Try.of(
+			() -> _bundleContext.getServiceReferences(serviceClass, null)
+		).transform(
+			Try::toJavaStream
+		).flatMap(
+			Collection::stream
+		).filter(
+			sr -> value.equals(sr.getProperty(property))
+		).findFirst(
+		).map(
+			reference -> (S)_bundleContext.getService(reference)
+		).orElse(
+			null
+		);
+	}
+
+	/**
 	 * Registers a new service with the provided properties. Returns the service
 	 * registration.
 	 *
